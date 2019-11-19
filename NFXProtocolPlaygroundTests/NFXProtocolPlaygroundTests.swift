@@ -26,7 +26,7 @@ class NFXProtocolPlaygroundTests: XCTestCase {
         let urlString = "https://httpbin.org/redirect-to?url=\(redirectURLString)"
 
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 3.0
+        config.timeoutIntervalForRequest = 4.0
         if config.protocolClasses?.contains(where: { $0 is NFXProtocol.Type }) == true {
             print("Netfox is running")
         }
@@ -65,7 +65,7 @@ class NFXProtocolPlaygroundTests: XCTestCase {
         // Given
         let timeout: TimeInterval = 5.0
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 3.0
+        config.timeoutIntervalForRequest = 4.0
         let manager = SessionManager(configuration: config)
         let redirectURLString = "https://www.apple.com"
         let urlString = "https://httpbin.org/redirect-to?url=\(redirectURLString)"
