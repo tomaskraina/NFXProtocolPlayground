@@ -9,6 +9,7 @@
 import XCTest
 //@testable import NFXProtocolPlayground
 import netfox
+import Alamofire
 
 class NFXProtocolPlaygroundTests: XCTestCase {
 
@@ -56,6 +57,47 @@ class NFXProtocolPlaygroundTests: XCTestCase {
         let headerLocation = httpResponse?.allHeaderFields["Location"] as? String
         XCTAssertNotNil(headerLocation)
         XCTAssertNil(response?.error)
+    }
+
+    /// From Alamofire Tests
+    /// https://github.com/Alamofire/Alamofire/blob/4.9.1/Tests/SessionDelegateTests.swift
+    func testThatTaskOverrideClosureCanCancelHTTPRedirection() {
+        // Given
+        let timeout: TimeInterval = 5.0
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 3.0
+        let manager = SessionManager(configuration: config)
+        let redirectURLString = "https://www.apple.com"
+        let urlString = "https://httpbin.org/redirect-to?url=\(redirectURLString)"
+
+        let expectation = self.expectation(description: "Request should not redirect to \(redirectURLString)")
+        let callbackExpectation = self.expectation(description: "Redirect callback should be made")
+        let delegate: SessionDelegate = manager.delegate
+
+        delegate.taskWillPerformHTTPRedirectionWithCompletion = { _, _, _, _, completion in
+            callbackExpectation.fulfill()
+            completion(nil)
+        }
+
+        var response: DefaultDataResponse?
+
+        // When
+        manager.request(urlString)
+            .response { resp in
+                response = resp
+                expectation.fulfill()
+            }
+
+        waitForExpectations(timeout: timeout, handler: nil)
+
+        // Then
+        XCTAssertNotNil(response?.request)
+        XCTAssertNotNil(response?.response)
+        XCTAssertNotNil(response?.data)
+        XCTAssertNil(response?.error)
+
+        XCTAssertEqual(response?.response?.url?.absoluteString, urlString)
+        XCTAssertEqual(response?.response?.statusCode, 302)
     }
 }
 
