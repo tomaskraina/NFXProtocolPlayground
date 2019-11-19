@@ -25,6 +25,11 @@ class NFXProtocolPlaygroundTests: XCTestCase {
         let urlString = "https://httpbin.org/redirect-to?url=\(redirectURLString)"
 
         let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 3.0
+        if config.protocolClasses?.contains(where: { $0 is NFXProtocol.Type }) == true {
+            print("Netfox is running")
+        }
+
         let delegate = MyURLSessionDelegate()
         let session = URLSession(configuration: config, delegate: delegate, delegateQueue: OperationQueue.main)
         var request = URLRequest(url: URL(string: urlString)!)
@@ -45,6 +50,8 @@ class NFXProtocolPlaygroundTests: XCTestCase {
         // Then
         XCTAssertTrue(delegate.hasInvokedWillPerformHTTPRedirection, "hasInvokedWillPerformHTTPRedirection")
 
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.response?.url?.absoluteString, urlString)
         let httpResponse = response?.response as? HTTPURLResponse
         let headerLocation = httpResponse?.allHeaderFields["Location"] as? String
         XCTAssertNotNil(headerLocation)
@@ -56,13 +63,14 @@ class NFXProtocolPlaygroundTests: XCTestCase {
 
 private final class MyURLSessionDelegate: NSObject, URLSessionDataDelegate {
 
-    private var isRedirectEnabled: Bool = false
+    var followRedirects: Bool = false
 
     var hasInvokedWillPerformHTTPRedirection: Bool = false
 
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
-        completionHandler(self.isRedirectEnabled ? request : nil)
+        print(#function, request)
         self.hasInvokedWillPerformHTTPRedirection = true
+        completionHandler(self.followRedirects ? request : nil)
     }
 
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
