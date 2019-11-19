@@ -1,16 +1,20 @@
 PODS:
+  - Alamofire (4.9.1)
   - netfox (1.17.0)
 
 DEPENDENCIES:
+  - Alamofire
   - netfox
 
 SPEC REPOS:
   trunk:
+    - Alamofire
     - netfox
 
 SPEC CHECKSUMS:
+  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   netfox: aae5897aebff6a1f89efe449dcd14e217d249c10
 
-PODFILE CHECKSUM: 0b00f01960e83db88b1b041c6cc98b55521ced9a
+PODFILE CHECKSUM: 2a6e2aeb219bc4e8bf12e5b404c9fdf428d87219
 
 COCOAPODS: 1.8.4

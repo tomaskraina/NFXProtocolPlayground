@@ -7,6 +7,7 @@ target 'NFXProtocolPlayground' do
 
   # Pods for NFXProtocolPlayground
   pod 'netfox'
+  pod 'Alamofire'
 
   target 'NFXProtocolPlaygroundTests' do
     inherit! :search_paths
