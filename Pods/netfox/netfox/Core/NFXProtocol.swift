@@ -117,6 +117,22 @@ extension NFXProtocol: URLSessionDataDelegate {
         NotificationCenter.default.post(name: .NFXReloadData, object: nil)
     }
     
+    public func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        
+        let updatedRequest: URLRequest
+        if URLProtocol.property(forKey: NFXProtocol.nfxInternalKey, in: request) != nil {
+            let mutableRequest = (request as NSURLRequest).mutableCopy() as! NSMutableURLRequest
+            URLProtocol.removeProperty(forKey: NFXProtocol.nfxInternalKey, in: mutableRequest)
+            
+            updatedRequest = mutableRequest as URLRequest
+        } else {
+            updatedRequest = request
+        }
+        
+        client?.urlProtocol(self, wasRedirectedTo: updatedRequest, redirectResponse: response)
+        completionHandler(updatedRequest)
+    }
+    
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         let wrappedChallenge = URLAuthenticationChallenge(authenticationChallenge: challenge, sender: NFXAuthenticationChallengeSender(handler: completionHandler))
         client?.urlProtocol(self, didReceive: wrappedChallenge)
